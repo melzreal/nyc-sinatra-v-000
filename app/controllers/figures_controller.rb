@@ -3,28 +3,41 @@ class FiguresController < ApplicationController
 
   get '/figures' do
     @figures = Figure.all
-    erb :'figures/show_figures'
+    erb :'figures/index'
   end
 
    get '/figures/new' do
      erb :'figures/new'
    end
 
-   post '/figures' do
 
-     @figure = Figure.create(:name => params[:figure][:name])
-     @figure.titles << Title.find_or_create_by(params[:figure][:title_ids]) << Title.find_or_create_by(params[:title])
-     @figure.landmarks << Landmark.find_or_create_by(params[:figure][:landmark_ids])
-     @figure.landmarks.each do |land|
-      land.name << params[:landmark][:name]
-      land.year_completed << params[:landmark][:year_completed].to_i
-    end
-
-     @figure.save
-     
-     redirect '/figures'
+   get '/figures/:id' do
+     @figure = Figure.find(params[:id])
+     erb :'figures/show_figures'
    end
 
+   get '/figures/:id/edit' do
+     @figure = Figure.find(params[:id])
+     erb :'figures/edit'
+   end
+
+   post '/figures' do
+     @figure = Figure.create(params[:figure])
+     @figure.titles << Title.find_or_create_by(params[:figure][:title_ids]) << Title.find_or_create_by(params[:title])
+     @figure.landmarks << Landmark.find_or_create_by(params[:figure][:landmark_ids]) << Landmark.find_or_create_by(params[:landmark])
+     @figure.save
+
+     redirect "/figures/#{@figure.id}"
+   end
+
+   patch '/figures/:id' do
+     @figure = Figure.find(params[:id])
+     @figure.update(params[:figure])
+     @figure.titles << Title.find_or_create_by(params[:figure][:title_ids]) << Title.find_or_create_by(params[:title])
+     @figure.landmarks << Landmark.find_or_create_by(params[:figure][:landmark_ids]) << Landmark.find_or_create_by(params[:landmark])
+     @figure.save
+     redirect "/figures/#{@figure.id}"
+   end
 
 
 
